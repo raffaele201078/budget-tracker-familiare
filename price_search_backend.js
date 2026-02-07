@@ -1,417 +1,502 @@
-// Sistema backend simulato per la ricerca prezzi
-class PriceSearchAPI {
-    constructor() {
-        this.stores = {
-            'esselunga': {
-                name: 'Esselunga',
-                logo: 'ESS',
-                type: 'premium',
-                priceMultiplier: 1.1
-            },
-            'coop': {
-                name: 'Coop',
-                logo: 'COOP',
-                type: 'standard',
-                priceMultiplier: 1.0
-            },
-            'carrefour': {
-                name: 'Carrefour',
-                logo: 'CAR',
-                type: 'hypermarket',
-                priceMultiplier: 0.95
-            },
-            'conad': {
-                name: 'Conad',
-                logo: 'CON',
-                type: 'standard',
-                priceMultiplier: 1.05
-            },
-            'iper': {
-                name: 'Iper',
-                logo: 'IPER',
-                type: 'hypermarket',
-                priceMultiplier: 0.9
-            },
-            'lidl': {
-                name: 'Lidl',
-                logo: 'LIDL',
-                type: 'discount',
-                priceMultiplier: 0.8
-            },
-            'eurospin': {
-                name: 'Eurospin',
-                logo: 'EURO',
-                type: 'discount',
-                priceMultiplier: 0.75
+// Price Search Backend API Simulation
+// Comprehensive Italian supermarket price comparison system
+
+const PriceSearchAPI = {
+    // Database of Italian food products with realistic pricing
+    products: {
+        // Dairy Products
+        'latte': {
+            name: 'Latte Fresco Intero 1L',
+            category: 'latticini',
+            basePrice: 1.35,
+            variations: ['latte fresco', 'latte intero', 'latte parzialmente scremato', 'latte scremato']
+        },
+        'yogurt': {
+            name: 'Yogurt Bianco 125g',
+            category: 'latticini',
+            basePrice: 0.89,
+            variations: ['yogurt greco', 'yogurt alla frutta', 'yogurt bianco']
+        },
+        'formaggio': {
+            name: 'Parmigiano Reggiano 200g',
+            category: 'latticini',
+            basePrice: 4.50,
+            variations: ['parmigiano', 'grana padano', 'pecorino', 'mozzarella']
+        },
+        'burro': {
+            name: 'Burro 250g',
+            category: 'latticini',
+            basePrice: 2.20,
+            variations: ['burro salato', 'burro dolce']
+        },
+
+        // Bakery & Grains
+        'pane': {
+            name: 'Pane Pugliese 500g',
+            category: 'panetteria',
+            basePrice: 1.80,
+            variations: ['pane integrale', 'pane bianco', 'pane pugliese', 'pane di segale']
+        },
+        'pasta': {
+            name: 'Pasta di Semola 500g',
+            category: 'pasta',
+            basePrice: 1.25,
+            variations: ['spaghetti', 'penne', 'fusilli', 'rigatoni', 'pasta barilla', 'pasta de cecco']
+        },
+        'riso': {
+            name: 'Riso Carnaroli 1kg',
+            category: 'cereali',
+            basePrice: 2.80,
+            variations: ['riso arborio', 'riso basmati', 'riso integrale']
+        },
+        'farina': {
+            name: 'Farina 00 1kg',
+            category: 'cereali',
+            basePrice: 1.10,
+            variations: ['farina integrale', 'farina manitoba', 'farina di semola']
+        },
+
+        // Meat & Fish
+        'pollo': {
+            name: 'Petto di Pollo 1kg',
+            category: 'carne',
+            basePrice: 8.90,
+            variations: ['cosce di pollo', 'pollo intero', 'ali di pollo']
+        },
+        'manzo': {
+            name: 'Carne di Manzo 1kg',
+            category: 'carne',
+            basePrice: 12.50,
+            variations: ['bistecca', 'macinato di manzo', 'arrosto']
+        },
+        'prosciutto': {
+            name: 'Prosciutto Crudo 100g',
+            category: 'salumi',
+            basePrice: 3.20,
+            variations: ['prosciutto cotto', 'speck', 'bresaola']
+        },
+        'salmone': {
+            name: 'Salmone Fresco 500g',
+            category: 'pesce',
+            basePrice: 9.80,
+            variations: ['salmone affumicato', 'tonno fresco', 'branzino']
+        },
+
+        // Fruits & Vegetables
+        'mele': {
+            name: 'Mele Golden 1kg',
+            category: 'frutta',
+            basePrice: 2.30,
+            variations: ['mele rosse', 'mele verdi', 'mele fuji']
+        },
+        'banane': {
+            name: 'Banane 1kg',
+            category: 'frutta',
+            basePrice: 1.90,
+            variations: ['banane bio', 'banane fairtrade']
+        },
+        'arance': {
+            name: 'Arance 1kg',
+            category: 'frutta',
+            basePrice: 2.10,
+            variations: ['arance rosse', 'arance bionde', 'arance bio']
+        },
+        'pomodori': {
+            name: 'Pomodori Freschi 1kg',
+            category: 'verdura',
+            basePrice: 2.80,
+            variations: ['pomodori ciliegino', 'pomodori san marzano', 'pomodori datterini']
+        },
+        'insalata': {
+            name: 'Insalata Mista 200g',
+            category: 'verdura',
+            basePrice: 1.50,
+            variations: ['lattuga', 'rucola', 'spinaci', 'insalata iceberg']
+        },
+        'patate': {
+            name: 'Patate 2kg',
+            category: 'verdura',
+            basePrice: 2.20,
+            variations: ['patate rosse', 'patate dolci', 'patate novelle']
+        },
+        'carote': {
+            name: 'Carote 1kg',
+            category: 'verdura',
+            basePrice: 1.40,
+            variations: ['carote baby', 'carote bio']
+        },
+        'cipolle': {
+            name: 'Cipolle Bianche 1kg',
+            category: 'verdura',
+            basePrice: 1.30,
+            variations: ['cipolle rosse', 'cipollotti', 'scalogno']
+        },
+
+        // Pantry Staples
+        'olio': {
+            name: 'Olio Extravergine di Oliva 500ml',
+            category: 'condimenti',
+            basePrice: 4.50,
+            variations: ['olio di semi', 'olio di girasole', 'olio evo', 'olio di oliva']
+        },
+        'aceto': {
+            name: 'Aceto di Vino 500ml',
+            category: 'condimenti',
+            basePrice: 1.80,
+            variations: ['aceto balsamico', 'aceto di mele']
+        },
+        'sale': {
+            name: 'Sale Fino 1kg',
+            category: 'condimenti',
+            basePrice: 0.60,
+            variations: ['sale grosso', 'sale marino', 'sale iodato']
+        },
+        'zucchero': {
+            name: 'Zucchero Semolato 1kg',
+            category: 'dolci',
+            basePrice: 1.20,
+            variations: ['zucchero di canna', 'zucchero a velo']
+        },
+        'caffè': {
+            name: 'Caffè Macinato 250g',
+            category: 'bevande',
+            basePrice: 3.80,
+            variations: ['caffè in grani', 'caffè lavazza', 'caffè illy', 'caffè decaffeinato']
+        },
+        'tè': {
+            name: 'Tè Nero 20 bustine',
+            category: 'bevande',
+            basePrice: 2.40,
+            variations: ['tè verde', 'tè alla camomilla', 'tè earl grey']
+        },
+
+        // Canned & Preserved
+        'pelati': {
+            name: 'Pomodori Pelati 400g',
+            category: 'conserve',
+            basePrice: 0.95,
+            variations: ['passata di pomodoro', 'concentrato di pomodoro']
+        },
+        'tonno': {
+            name: 'Tonno in Scatola 160g',
+            category: 'conserve',
+            basePrice: 1.80,
+            variations: ['tonno all\'olio', 'tonno al naturale', 'salmone in scatola']
+        },
+        'fagioli': {
+            name: 'Fagioli Cannellini 400g',
+            category: 'legumi',
+            basePrice: 1.20,
+            variations: ['ceci', 'lenticchie', 'fagioli borlotti']
+        },
+
+        // Frozen Foods
+        'gelato': {
+            name: 'Gelato Vaschetta 500ml',
+            category: 'surgelati',
+            basePrice: 3.50,
+            variations: ['gelato al cioccolato', 'gelato alla vaniglia', 'sorbetto']
+        },
+        'verdure surgelate': {
+            name: 'Verdure Miste Surgelate 450g',
+            category: 'surgelati',
+            basePrice: 2.30,
+            variations: ['piselli surgelati', 'spinaci surgelati', 'minestrone surgelato']
+        },
+
+        // Cleaning & Household
+        'detersivo': {
+            name: 'Detersivo Lavatrice 1L',
+            category: 'pulizia',
+            basePrice: 3.20,
+            variations: ['detersivo piatti', 'ammorbidente', 'candeggina']
+        },
+        'carta igienica': {
+            name: 'Carta Igienica 12 rotoli',
+            category: 'casa',
+            basePrice: 4.80,
+            variations: ['fazzoletti', 'carta da cucina', 'tovaglioli']
+        },
+
+        // Baby & Personal Care
+        'shampoo': {
+            name: 'Shampoo 250ml',
+            category: 'igiene',
+            basePrice: 2.90,
+            variations: ['balsamo', 'bagnoschiuma', 'dentifricio']
+        },
+        'pannolini': {
+            name: 'Pannolini Taglia 4 (30pz)',
+            category: 'bambini',
+            basePrice: 12.50,
+            variations: ['salviette umidificate', 'latte detergente']
+        }
+    },
+
+    // Supermarket chains with realistic pricing strategies
+    supermarkets: {
+        'Conad': {
+            name: 'Conad',
+            priceMultiplier: 1.05, // Slightly above average
+            phone: '06 9876543',
+            hours: '8:00-20:00',
+            services: ['Parcheggio gratuito', 'Carta fedeltà', 'Consegna a domicilio']
+        },
+        'Eurospin': {
+            name: 'Eurospin',
+            priceMultiplier: 0.85, // Discount chain
+            phone: '06 9876544',
+            hours: '8:30-19:30',
+            services: ['Prezzi bassi', 'Offerte settimanali', 'Parcheggio']
+        },
+        'Lidl': {
+            name: 'Lidl',
+            priceMultiplier: 0.88, // Discount chain
+            phone: '06 9876545',
+            hours: '8:00-20:00',
+            services: ['Prodotti tedeschi', 'Offerte speciali', 'Bakery']
+        },
+        'Top Supermercati': {
+            name: 'Top Supermercati',
+            priceMultiplier: 0.95, // Competitive pricing
+            phone: '06 9876546',
+            hours: '7:30-20:30',
+            services: ['Prodotti locali', 'Gastronomia', 'Macelleria']
+        },
+        'Carrefour': {
+            name: 'Carrefour',
+            priceMultiplier: 1.08, // Premium positioning
+            phone: '06 9876547',
+            hours: '8:00-21:00',
+            services: ['Ampia scelta', 'Prodotti bio', 'Centro commerciale']
+        }
+    },
+
+    // Geographic data for postal codes (CAP)
+    locations: {
+        // Castelli Romani Area (including 00049)
+        '00049': {
+            city: 'Velletri',
+            region: 'Lazio',
+            stores: {
+                'Conad': { address: 'Via Appia Nord, 45 - Velletri', distance: '0.8 km' },
+                'Eurospin': { address: 'Via dei Cappuccini, 12 - Velletri', distance: '1.2 km' },
+                'Lidl': { address: 'Via Paganico, 78 - Velletri', distance: '1.5 km' },
+                'Top Supermercati': { address: 'Corso della Repubblica, 23 - Velletri', distance: '0.5 km' },
+                'Carrefour': { address: 'Via Nettunense, 156 - Velletri', distance: '2.1 km' }
             }
-        };
-
-        this.products = {
-            // Prodotti alimentari di base
-            'latte': { basePrice: 1.20, unit: '1L', category: 'latticini' },
-            'latte intero': { basePrice: 1.25, unit: '1L', category: 'latticini' },
-            'latte parzialmente scremato': { basePrice: 1.20, unit: '1L', category: 'latticini' },
-            'pane': { basePrice: 2.50, unit: '1kg', category: 'panetteria' },
-            'pane integrale': { basePrice: 3.00, unit: '1kg', category: 'panetteria' },
-            'pasta': { basePrice: 1.80, unit: '500g', category: 'pasta' },
-            'pasta barilla': { basePrice: 2.20, unit: '500g', category: 'pasta' },
-            'pasta de cecco': { basePrice: 2.50, unit: '500g', category: 'pasta' },
-            'riso': { basePrice: 2.00, unit: '1kg', category: 'cereali' },
-            'riso carnaroli': { basePrice: 3.50, unit: '1kg', category: 'cereali' },
-            'olio oliva': { basePrice: 4.50, unit: '1L', category: 'condimenti' },
-            'olio extravergine': { basePrice: 6.00, unit: '1L', category: 'condimenti' },
-            
-            // Carne e pesce
-            'pollo': { basePrice: 8.50, unit: '1kg', category: 'carne' },
-            'manzo': { basePrice: 15.00, unit: '1kg', category: 'carne' },
-            'salmone': { basePrice: 18.00, unit: '1kg', category: 'pesce' },
-            'tonno scatoletta': { basePrice: 1.50, unit: '160g', category: 'conserve' },
-            
-            // Frutta e verdura
-            'mele': { basePrice: 2.50, unit: '1kg', category: 'frutta' },
-            'banane': { basePrice: 2.00, unit: '1kg', category: 'frutta' },
-            'pomodori': { basePrice: 3.00, unit: '1kg', category: 'verdura' },
-            'insalata': { basePrice: 1.50, unit: '1 cespo', category: 'verdura' },
-            'patate': { basePrice: 1.80, unit: '1kg', category: 'verdura' },
-            
-            // Prodotti confezionati
-            'yogurt': { basePrice: 0.80, unit: '125g', category: 'latticini' },
-            'biscotti': { basePrice: 2.50, unit: '350g', category: 'dolci' },
-            'cereali': { basePrice: 4.00, unit: '375g', category: 'colazione' },
-            'caffè': { basePrice: 3.50, unit: '250g', category: 'bevande' },
-            'acqua': { basePrice: 0.30, unit: '1.5L', category: 'bevande' },
-            
-            // Prodotti per la casa
-            'detersivo piatti': { basePrice: 2.50, unit: '1L', category: 'casa' },
-            'carta igienica': { basePrice: 4.00, unit: '8 rotoli', category: 'casa' },
-            'shampoo': { basePrice: 3.50, unit: '250ml', category: 'igiene' }
-        };
-
-        this.italianZipCodes = {
-            // Milano e provincia
-            '20121': { city: 'Milano', region: 'Lombardia', province: 'MI' },
-            '20122': { city: 'Milano', region: 'Lombardia', province: 'MI' },
-            '20123': { city: 'Milano', region: 'Lombardia', province: 'MI' },
-            '20124': { city: 'Milano', region: 'Lombardia', province: 'MI' },
-            '20125': { city: 'Milano', region: 'Lombardia', province: 'MI' },
-            
-            // Roma e provincia
-            '00118': { city: 'Roma', region: 'Lazio', province: 'RM' },
-            '00119': { city: 'Roma', region: 'Lazio', province: 'RM' },
-            '00120': { city: 'Roma', region: 'Lazio', province: 'RM' },
-            '00121': { city: 'Roma', region: 'Lazio', province: 'RM' },
-            '00122': { city: 'Roma', region: 'Lazio', province: 'RM' },
-            
-            // Napoli e provincia
-            '80121': { city: 'Napoli', region: 'Campania', province: 'NA' },
-            '80122': { city: 'Napoli', region: 'Campania', province: 'NA' },
-            '80123': { city: 'Napoli', region: 'Campania', province: 'NA' },
-            
-            // Torino e provincia
-            '10121': { city: 'Torino', region: 'Piemonte', province: 'TO' },
-            '10122': { city: 'Torino', region: 'Piemonte', province: 'TO' },
-            '10123': { city: 'Torino', region: 'Piemonte', province: 'TO' },
-            
-            // Bologna e provincia
-            '40121': { city: 'Bologna', region: 'Emilia-Romagna', province: 'BO' },
-            '40122': { city: 'Bologna', region: 'Emilia-Romagna', province: 'BO' },
-            '40123': { city: 'Bologna', region: 'Emilia-Romagna', province: 'BO' },
-            
-            // Firenze e provincia
-            '50121': { city: 'Firenze', region: 'Toscana', province: 'FI' },
-            '50122': { city: 'Firenze', region: 'Toscana', province: 'FI' },
-            '50123': { city: 'Firenze', region: 'Toscana', province: 'FI' }
-        };
-    }
-
-    // Ricerca prodotti con fuzzy matching
-    searchProduct(query) {
-        const normalizedQuery = query.toLowerCase().trim();
-        const matches = [];
-
-        for (const [productName, productData] of Object.entries(this.products)) {
-            const similarity = this.calculateSimilarity(normalizedQuery, productName);
-            if (similarity > 0.3) { // Soglia di similarità
-                matches.push({
-                    name: productName,
-                    data: productData,
-                    similarity: similarity
-                });
+        },
+        '00040': {
+            city: 'Ariccia',
+            region: 'Lazio',
+            stores: {
+                'Conad': { address: 'Via Borgo San Rocco, 15 - Ariccia', distance: '0.6 km' },
+                'Eurospin': { address: 'Via Nettunense, 89 - Ariccia', distance: '1.0 km' },
+                'Lidl': { address: 'Via Appia Nuova, 234 - Ariccia', distance: '1.3 km' },
+                'Top Supermercati': { address: 'Piazza di Corte, 8 - Ariccia', distance: '0.4 km' },
+                'Carrefour': { address: 'Via dei Laghi, 67 - Ariccia', distance: '1.8 km' }
+            }
+        },
+        '00041': {
+            city: 'Albano Laziale',
+            region: 'Lazio',
+            stores: {
+                'Conad': { address: 'Via Appia, 123 - Albano Laziale', distance: '0.7 km' },
+                'Eurospin': { address: 'Via Olivella, 45 - Albano Laziale', distance: '1.1 km' },
+                'Lidl': { address: 'Via Nettunense, 178 - Albano Laziale', distance: '1.4 km' },
+                'Top Supermercati': { address: 'Corso Matteotti, 56 - Albano Laziale', distance: '0.3 km' },
+                'Carrefour': { address: 'Via dei Cappuccini, 234 - Albano Laziale', distance: '1.9 km' }
+            }
+        },
+        // Rome Area
+        '00118': {
+            city: 'Roma EUR',
+            region: 'Lazio',
+            stores: {
+                'Conad': { address: 'Viale Europa, 190 - Roma', distance: '0.5 km' },
+                'Eurospin': { address: 'Via Cristoforo Colombo, 456 - Roma', distance: '0.8 km' },
+                'Lidl': { address: 'Via Laurentina, 234 - Roma', distance: '1.2 km' },
+                'Top Supermercati': { address: 'Piazzale Konrad Adenauer, 8 - Roma', distance: '0.3 km' },
+                'Carrefour': { address: 'Viale Oceania, 85 - Roma', distance: '1.5 km' }
+            }
+        },
+        '00119': {
+            city: 'Roma Fonte Ostiense',
+            region: 'Lazio',
+            stores: {
+                'Conad': { address: 'Via Ostiense, 567 - Roma', distance: '0.6 km' },
+                'Eurospin': { address: 'Via del Mare, 123 - Roma', distance: '0.9 km' },
+                'Lidl': { address: 'Via Laurentina, 789 - Roma', distance: '1.1 km' },
+                'Top Supermercati': { address: 'Via di Acilia, 45 - Roma', distance: '0.4 km' },
+                'Carrefour': { address: 'Via Cristoforo Colombo, 890 - Roma', distance: '1.6 km' }
+            }
+        },
+        // Milan Area
+        '20121': {
+            city: 'Milano Centro',
+            region: 'Lombardia',
+            stores: {
+                'Conad': { address: 'Corso Buenos Aires, 45 - Milano', distance: '0.4 km' },
+                'Eurospin': { address: 'Via Padova, 123 - Milano', distance: '0.7 km' },
+                'Lidl': { address: 'Viale Monza, 234 - Milano', distance: '1.0 km' },
+                'Top Supermercati': { address: 'Via Brera, 12 - Milano', distance: '0.2 km' },
+                'Carrefour': { address: 'Corso di Porta Ticinese, 67 - Milano', distance: '1.3 km' }
+            }
+        },
+        // Naples Area
+        '80121': {
+            city: 'Napoli Centro',
+            region: 'Campania',
+            stores: {
+                'Conad': { address: 'Via Toledo, 234 - Napoli', distance: '0.3 km' },
+                'Eurospin': { address: 'Corso Umberto I, 567 - Napoli', distance: '0.6 km' },
+                'Lidl': { address: 'Via Chiaia, 89 - Napoli', distance: '0.9 km' },
+                'Top Supermercati': { address: 'Piazza del Plebiscito, 15 - Napoli', distance: '0.2 km' },
+                'Carrefour': { address: 'Via dei Mille, 123 - Napoli', distance: '1.2 km' }
             }
         }
+    },
 
-        return matches.sort((a, b) => b.similarity - a.similarity);
-    }
+    // Fuzzy search algorithm for product matching
+    fuzzySearch: function(query, productKey) {
+        const product = this.products[productKey];
+        if (!product) return 0;
 
-    // Calcola similarità tra stringhe (algoritmo semplificato)
-    calculateSimilarity(str1, str2) {
-        if (str1 === str2) return 1;
-        if (str1.includes(str2) || str2.includes(str1)) return 0.8;
-        
-        const words1 = str1.split(' ');
-        const words2 = str2.split(' ');
-        let matches = 0;
-        
-        words1.forEach(word1 => {
-            words2.forEach(word2 => {
-                if (word1 === word2 || word1.includes(word2) || word2.includes(word1)) {
-                    matches++;
+        const searchTerms = query.toLowerCase().split(' ');
+        const productTerms = [
+            productKey,
+            product.name.toLowerCase(),
+            ...product.variations.map(v => v.toLowerCase())
+        ];
+
+        let score = 0;
+        searchTerms.forEach(searchTerm => {
+            productTerms.forEach(productTerm => {
+                if (productTerm.includes(searchTerm) || searchTerm.includes(productTerm)) {
+                    score += searchTerm.length / productTerm.length;
                 }
             });
         });
-        
-        return matches / Math.max(words1.length, words2.length);
-    }
 
-    // Genera prezzi per tutti i supermercati
-    async searchPrices(productQuery, zipCode) {
-        // Simula latenza di rete
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+        return score;
+    },
 
-        const locationData = this.italianZipCodes[zipCode];
-        if (!locationData) {
-            throw new Error('CAP non valido o non supportato');
-        }
+    // Main search function
+    searchProduct: function(query, cap) {
+        if (!query || !cap) return null;
 
-        const productMatches = this.searchProduct(productQuery);
-        if (productMatches.length === 0) {
-            return [];
-        }
+        // Find location data
+        const location = this.locations[cap];
+        if (!location) return null;
 
-        const bestMatch = productMatches[0];
+        // Search for matching products
         const results = [];
+        const searchQuery = query.toLowerCase().trim();
 
-        // Genera risultati per ogni supermercato
-        for (const [storeId, storeData] of Object.entries(this.stores)) {
-            // Simula disponibilità del prodotto (90% di probabilità)
-            if (Math.random() < 0.9) {
-                const basePrice = bestMatch.data.basePrice;
-                const finalPrice = basePrice * storeData.priceMultiplier * (0.9 + Math.random() * 0.2);
-                
-                results.push({
-                    store: storeData.name,
-                    logo: storeData.logo,
-                    product: bestMatch.name,
-                    price: finalPrice.toFixed(2),
-                    pricePerUnit: `€${(finalPrice / this.extractNumericValue(bestMatch.data.unit)).toFixed(2)}/${this.getUnitType(bestMatch.data.unit)}`,
-                    unit: bestMatch.data.unit,
-                    category: bestMatch.data.category,
-                    distance: this.generateDistance(),
-                    address: this.generateAddress(locationData),
-                    availability: Math.random() > 0.1 ? 'Disponibile' : 'Scorte limitate',
-                    storeType: storeData.type
+        Object.keys(this.products).forEach(productKey => {
+            const score = this.fuzzySearch(searchQuery, productKey);
+            if (score > 0.3) { // Minimum relevance threshold
+                const product = this.products[productKey];
+                const stores = [];
+
+                // Generate prices for each supermarket
+                Object.keys(this.supermarkets).forEach(supermarketKey => {
+                    const supermarket = this.supermarkets[supermarketKey];
+                    const storeLocation = location.stores[supermarketKey];
+                    
+                    if (storeLocation) {
+                        // Calculate price with some randomization
+                        const basePrice = product.basePrice;
+                        const multiplier = supermarket.priceMultiplier;
+                        const randomVariation = 0.95 + (Math.random() * 0.1); // ±5% random variation
+                        const finalPrice = basePrice * multiplier * randomVariation;
+
+                        stores.push({
+                            name: supermarket.name,
+                            price: Math.round(finalPrice * 100) / 100, // Round to 2 decimals
+                            address: storeLocation.address,
+                            distance: storeLocation.distance,
+                            phone: supermarket.phone,
+                            hours: supermarket.hours,
+                            services: supermarket.services
+                        });
+                    }
                 });
-            }
-        }
 
-        // Ordina per prezzo crescente
-        results.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        
-        // Marca il miglior prezzo
-        if (results.length > 0) {
-            results[0].isBestPrice = true;
-        }
-
-        return results;
-    }
-
-    // Trova supermercati nelle vicinanze
-    async findNearbyStores(zipCode) {
-        await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
-
-        const locationData = this.italianZipCodes[zipCode];
-        if (!locationData) {
-            throw new Error('CAP non valido o non supportato');
-        }
-
-        const stores = [];
-        const storeTypes = {
-            'premium': ['esselunga'],
-            'standard': ['coop', 'conad'],
-            'hypermarket': ['carrefour', 'iper'],
-            'discount': ['lidl', 'eurospin']
-        };
-
-        // Genera 4-6 supermercati casuali
-        const numStores = 4 + Math.floor(Math.random() * 3);
-        const selectedStores = [];
-
-        // Assicurati di avere almeno un supermercato per tipo
-        Object.values(storeTypes).forEach(typeStores => {
-            if (selectedStores.length < numStores) {
-                const randomStore = typeStores[Math.floor(Math.random() * typeStores.length)];
-                selectedStores.push(randomStore);
+                if (stores.length > 0) {
+                    results.push({
+                        productName: product.name,
+                        category: product.category,
+                        stores: stores,
+                        relevanceScore: score
+                    });
+                }
             }
         });
 
-        // Riempi con supermercati casuali
-        while (selectedStores.length < numStores) {
-            const allStoreIds = Object.keys(this.stores);
-            const randomStore = allStoreIds[Math.floor(Math.random() * allStoreIds.length)];
-            if (!selectedStores.includes(randomStore)) {
-                selectedStores.push(randomStore);
-            }
-        }
-
-        selectedStores.forEach(storeId => {
-            const storeData = this.stores[storeId];
-            stores.push({
-                name: storeData.name,
-                logo: storeData.logo,
-                type: this.getStoreTypeLabel(storeData.type),
-                distance: this.generateDistance(),
-                address: this.generateAddress(locationData),
-                openingHours: this.generateOpeningHours(),
-                phone: this.generatePhoneNumber(),
-                services: this.generateServices(storeData.type)
-            });
-        });
-
-        // Ordina per distanza
-        stores.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-
-        return stores;
-    }
-
-    // Funzioni di utilità
-    extractNumericValue(unit) {
-        const match = unit.match(/(\d+(?:\.\d+)?)/);
-        return match ? parseFloat(match[1]) : 1;
-    }
-
-    getUnitType(unit) {
-        if (unit.includes('kg')) return 'kg';
-        if (unit.includes('L')) return 'L';
-        if (unit.includes('g')) return '100g';
-        if (unit.includes('ml')) return '100ml';
-        return 'unità';
-    }
-
-    generateDistance() {
-        return (Math.random() * 4 + 0.3).toFixed(1) + ' km';
-    }
-
-    generateAddress(locationData) {
-        const streets = ['Via Roma', 'Via Milano', 'Corso Italia', 'Piazza Garibaldi', 'Viale Europa', 'Via Nazionale', 'Corso Vittorio Emanuele'];
-        const street = streets[Math.floor(Math.random() * streets.length)];
-        const number = Math.floor(Math.random() * 200) + 1;
-        return `${street} ${number}, ${locationData.city}`;
-    }
-
-    getStoreTypeLabel(type) {
-        const labels = {
-            'premium': 'Supermercato Premium',
-            'standard': 'Supermercato',
-            'hypermarket': 'Ipermercato',
-            'discount': 'Discount'
-        };
-        return labels[type] || 'Supermercato';
-    }
-
-    generateOpeningHours() {
-        const options = [
-            '8:00 - 21:00',
-            '8:30 - 20:30',
-            '9:00 - 22:00',
-            '7:30 - 21:30'
-        ];
-        return options[Math.floor(Math.random() * options.length)];
-    }
-
-    generatePhoneNumber() {
-        return `0${Math.floor(Math.random() * 9) + 1} ${Math.floor(Math.random() * 9000000) + 1000000}`;
-    }
-
-    generateServices(storeType) {
-        const allServices = ['Parcheggio', 'Farmacia', 'Panetteria', 'Macelleria', 'Pescheria', 'Consegna a domicilio', 'Self-checkout'];
-        const servicesByType = {
-            'premium': 6,
-            'hypermarket': 7,
-            'standard': 4,
-            'discount': 2
-        };
+        // Sort by relevance score
+        results.sort((a, b) => b.relevanceScore - a.relevanceScore);
         
-        const numServices = servicesByType[storeType] || 3;
-        const shuffled = allServices.sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, numServices);
-    }
+        // Return top 3 most relevant results
+        return results.slice(0, 3);
+    },
 
-    // Ottimizzazione lista spesa
-    async optimizeShoppingList(shoppingList, zipCode) {
-        await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
+    // Shopping list optimization
+    optimizeShoppingRoute: function(shoppingList) {
+        if (!shoppingList || shoppingList.length === 0) return null;
 
-        const locationData = this.italianZipCodes[zipCode];
-        if (!locationData) {
-            throw new Error('CAP non valido');
-        }
-
-        const optimizedItems = [];
-        let totalSavings = 0;
+        // Group products by store
+        const storeGroups = {};
         let totalCost = 0;
 
-        for (const item of shoppingList) {
-            try {
-                const priceResults = await this.searchPrices(item.product, zipCode);
-                if (priceResults.length > 0) {
-                    const bestPrice = priceResults[0];
-                    const itemCost = parseFloat(bestPrice.price) * item.quantity;
-                    const avgPrice = priceResults.reduce((sum, result) => sum + parseFloat(result.price), 0) / priceResults.length;
-                    const savings = (avgPrice - parseFloat(bestPrice.price)) * item.quantity;
-
-                    optimizedItems.push({
-                        ...item,
-                        bestPrice: bestPrice.price,
-                        bestStore: bestPrice.store,
-                        bestStoreAddress: bestPrice.address,
-                        totalCost: itemCost,
-                        savings: savings,
-                        found: true
-                    });
-
-                    totalCost += itemCost;
-                    totalSavings += savings;
-                } else {
-                    optimizedItems.push({
-                        ...item,
-                        found: false
-                    });
-                }
-            } catch (error) {
-                optimizedItems.push({
-                    ...item,
-                    found: false,
-                    error: error.message
-                });
+        shoppingList.forEach(item => {
+            if (!storeGroups[item.store]) {
+                storeGroups[item.store] = {
+                    store: item.store,
+                    products: [],
+                    totalCost: 0
+                };
             }
-        }
-
-        // Raggruppa per supermercato per ottimizzare il percorso
-        const storeGroups = {};
-        optimizedItems.filter(item => item.found).forEach(item => {
-            if (!storeGroups[item.bestStore]) {
-                storeGroups[item.bestStore] = [];
-            }
-            storeGroups[item.bestStore].push(item);
+            storeGroups[item.store].products.push(item.product);
+            storeGroups[item.store].totalCost += item.price;
+            totalCost += item.price;
         });
 
-        const route = Object.entries(storeGroups).map(([store, items]) => ({
-            store: store,
-            address: items[0].bestStoreAddress,
-            items: items.length,
-            products: items.map(item => item.product)
+        // Create optimized route (sorted by proximity)
+        const route = Object.values(storeGroups).map(group => ({
+            store: group.store,
+            products: group.products,
+            totalCost: group.totalCost,
+            distance: this.getRandomDistance()
         }));
 
-        return {
-            optimizedItems: optimizedItems,
-            totalCost: totalCost,
-            totalSavings: totalSavings,
-            route: route,
-            estimatedTime: route.length * 15 + 10 // 15 min per negozio + 10 min viaggio
-        };
-    }
-}
+        // Sort by distance for optimal route
+        route.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
-// Esporta per uso globale
+        const totalDistance = route.reduce((sum, stop) => sum + parseFloat(stop.distance), 0).toFixed(1) + ' km';
+        const estimatedTime = Math.ceil(route.length * 15 + totalDistance * 2) + ' minuti';
+
+        return {
+            route: route,
+            totalCost: totalCost,
+            totalDistance: totalDistance,
+            estimatedTime: estimatedTime,
+            stopsCount: route.length
+        };
+    },
+
+    // Helper function for random distance generation
+    getRandomDistance: function() {
+        return (0.3 + Math.random() * 2.0).toFixed(1) + ' km';
+    }
+};
+
+// Make API available globally
 if (typeof window !== 'undefined') {
     window.PriceSearchAPI = PriceSearchAPI;
+}
+
+// Export for Node.js environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PriceSearchAPI;
 }
