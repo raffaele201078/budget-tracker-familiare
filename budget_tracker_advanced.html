@@ -690,7 +690,17 @@
         <div id="price-search-tab" class="tab-content">
             <div class="section">
                 <h2>🔍 Ricerca Prezzi Supermercati</h2>
-                <p style="margin-bottom: 20px; color: #6c757d;">Trova i prezzi migliori per i tuoi prodotti preferiti nei supermercati della tua zona</p>
+                <p style="margin-bottom: 15px; color: #6c757d;">Trova i prezzi migliori per i tuoi prodotti preferiti nei supermercati della tua zona</p>
+
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 0; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="margin: 0; color: #1976d2;">📍 CAP Supportati:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.9em; color: #424242;">
+                        <div><strong>🏛️ Castelli Romani:</strong><br>00049 (Velletri), 00040 (Ariccia), 00041 (Albano)</div>
+                        <div><strong>🏛️ Roma:</strong><br>00118 (EUR), 00119 (Fonte Ostiense)</div>
+                        <div><strong>🏢 Milano:</strong><br>20121 (Centro)</div>
+                        <div><strong>🌋 Napoli:</strong><br>80121 (Centro)</div>
+                    </div>
+                </div>
                 
                 <div class="search-container">
                     <div class="search-input">
@@ -699,7 +709,7 @@
                     </div>
                     <div class="cap-input">
                         <label for="cap-search">CAP</label>
-                        <input type="text" id="cap-search" placeholder="es. 20121" maxlength="5">
+                        <input type="text" id="cap-search" placeholder="es. 00049" maxlength="5">
                     </div>
                     <div class="search-btn" style="display: flex; align-items: end;">
                         <button class="btn" onclick="searchPrices()" style="width: 100%;">Cerca Prezzi</button>
@@ -1150,15 +1160,37 @@
 
         function displaySearchResults(results, searchTerm) {
             const resultsContainer = document.getElementById('search-results');
+            const cap = document.getElementById('cap-search').value.trim();
 
             if (!results || results.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="no-results">
-                        <h3>Nessun risultato trovato</h3>
-                        <p>Non abbiamo trovato "${searchTerm}" nei supermercati della tua zona.</p>
-                        <p>Prova con termini più generici come "latte", "pasta", "pane".</p>
-                    </div>
-                `;
+                // Check if it's a CAP issue or product issue
+                const supportedCAPs = ['00049', '00040', '00041', '00118', '00119', '20121', '80121'];
+                const isUnsupportedCAP = !supportedCAPs.includes(cap);
+                
+                if (isUnsupportedCAP) {
+                    resultsContainer.innerHTML = `
+                        <div class="error-message">
+                            <h3>❌ CAP Non Supportato</h3>
+                            <p><strong>Il CAP "${cap}" non è ancora supportato.</strong></p>
+                            <p>Al momento supportiamo solo le seguenti zone:</p>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li><strong>Castelli Romani:</strong> 00049 (Velletri), 00040 (Ariccia), 00041 (Albano)</li>
+                                <li><strong>Roma:</strong> 00118 (EUR), 00119 (Fonte Ostiense)</li>
+                                <li><strong>Milano:</strong> 20121 (Centro)</li>
+                                <li><strong>Napoli:</strong> 80121 (Centro)</li>
+                            </ul>
+                            <p>Prova con uno dei CAP supportati per testare la funzionalità!</p>
+                        </div>
+                    `;
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="no-results">
+                            <h3>Nessun risultato trovato</h3>
+                            <p>Non abbiamo trovato "${searchTerm}" nei supermercati della tua zona.</p>
+                            <p>Prova con termini più generici come "latte", "pasta", "pane".</p>
+                        </div>
+                    `;
+                }
                 return;
             }
 
