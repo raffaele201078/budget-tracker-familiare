@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker Familiare Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4facfe;
+            border-bottom: 3px solid #4facfe;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row > * {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c3e50;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .transaction-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .transaction-amount.income {
+            color: #28a745;
+        }
+
+        .transaction-amount.expense {
+            color: #dc3545;
+        }
+
+        .recurring-badge {
+            background: #ffc107;
+            color: #212529;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .suggestions {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .suggestions h3 {
+            color: #8b4513;
+            margin-bottom: 15px;
+        }
+
+        .suggestions ul {
+            list-style: none;
+        }
+
+        .suggestions li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .suggestions li:last-child {
+            border-bottom: none;
+        }
+
+        /* Price Search Styles */
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 2;
+            min-width: 250px;
+        }
+
+        .cap-input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .search-btn {
+            flex: 0 0 auto;
+            min-width: 120px;
+        }
+
+        .results-container {
+            margin-top: 25px;
+        }
+
+        .product-result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .product-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .stores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .store-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .store-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .store-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .store-price {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .store-info {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .savings-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .best-price {
+            border: 2px solid #28a745;
+            background: #f8fff9;
+        }
+
+        /* Smart Shopping List Styles */
+        .shopping-list-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .add-product-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .shopping-list-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .product-store {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .product-price {
+            font-weight: 600;
+            color: #28a745;
+            margin-right: 10px;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .optimization-results {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .route-info {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .total-savings {
+            background: #28a745;
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row > * {
+                min-width: auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .shopping-list-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stores-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Budget Tracker Familiare Pro</h1>
+            <p>Gestisci il budget e trova i prezzi migliori per la tua famiglia</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('budget')">📊 Budget Tracker</button>
+            <button class="tab" onclick="showTab('price-search')">🔍 Ricerca Prezzi</button>
+            <button class="tab" onclick="showTab('shopping-list')">🛒 Lista Spesa Smart</button>
+        </div>
+
+        <!-- Budget Tracker Tab -->
+        <div id="budget-tab" class="tab-content active">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="total-income">€0</h3>
+                    <p>Entrate Totali</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-expenses">€0</h3>
+                    <p>Spese Totali</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="balance">€0</h3>
+                    <p>Saldo</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="recurring-expenses">€0</h3>
+                    <p>Spese Ricorrenti</p>
+                </div>
+            </div>
+
+            <!-- Add Income Section -->
+            <div class="section">
+                <h2>💵 Aggiungi Entrata</h2>
+                <div class="form-row">
+                    <div>
+                        <label for="income-description">Descrizione</label>
+                        <input type="text" id="income-description" placeholder="es. Stipendio, Bonus, Freelance">
+                    </div>
+                    <div>
+                        <label for="income-amount">Importo (€)</label>
+                        <input type="number" id="income-amount" step="0.01" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="income-date">Data</label>
+                        <input type="date" id="income-date">
+                    </div>
+                </div>
+                <button class="btn" onclick="addIncome()">Aggiungi Entrata</button>
+            </div>
+
+            <!-- Add Expense Section -->
+            <div class="section">
+                <h2>💳 Aggiungi Spesa</h2>
+                <div class="form-row">
+                    <div>
+                        <label for="expense-description">Descrizione</label>
+                        <input type="text" id="expense-description" placeholder="es. Spesa, Benzina, Ristorante">
+                    </div>
+                    <div>
+                        <label for="expense-amount">Importo (€)</label>
+                        <input type="number" id="expense-amount" step="0.01" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="expense-category">Categoria</label>
+                        <select id="expense-category">
+                            <option value="alimentari">🛒 Alimentari</option>
+                            <option value="trasporti">🚗 Trasporti</option>
+                            <option value="casa">🏠 Casa</option>
+                            <option value="salute">🏥 Salute</option>
+                            <option value="intrattenimento">🎬 Intrattenimento</option>
+                            <option value="abbigliamento">👕 Abbigliamento</option>
+                            <option value="servizi">📱 Servizi</option>
+                            <option value="altro">📦 Altro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label for="expense-payment">Metodo Pagamento</label>
+                        <select id="expense-payment">
+                            <option value="contanti">💵 Contanti</option>
+                            <option value="carta-debito">💳 Carta di Debito</option>
+                            <option value="carta-credito">💎 Carta di Credito</option>
+                            <option value="bonifico">🏦 Bonifico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="expense-date">Data</label>
+                        <input type="date" id="expense-date">
+                    </div>
+                    <div style="display: flex; align-items: center; margin-top: 30px;">
+                        <input type="checkbox" id="expense-recurring" style="width: auto; margin-right: 10px;">
+                        <label for="expense-recurring" style="margin-bottom: 0;">Spesa ricorrente (mensile)</label>
+                    </div>
+                </div>
+                <button class="btn" onclick="addExpense()">Aggiungi Spesa</button>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="section">
+                <h2>📈 Analisi Spese</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <h3>Spese per Categoria</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Metodi di Pagamento</h3>
+                        <div class="chart-container">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="section">
+                <h2>📋 Transazioni Recenti</h2>
+                <div class="transaction-list" id="transaction-list">
+                    <div class="no-results">Nessuna transazione ancora registrata</div>
+                </div>
+            </div>
+
+            <!-- Savings Suggestions -->
+            <div class="suggestions">
+                <h3>💡 Suggerimenti per Risparmiare</h3>
+                <ul id="suggestions-list">
+                    <li>Inizia a registrare le tue entrate e spese per ricevere consigli personalizzati</li>
+                </ul>
+            </div>
+
+            <!-- Export/Import Section -->
+            <div class="section">
+                <h2>💾 Backup e Ripristino</h2>
+                <button class="btn btn-secondary" onclick="exportData()">Esporta Dati</button>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData()">
+                <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">Importa Dati</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Cancella Tutti i Dati</button>
+            </div>
+        </div>
+
+        <!-- Price Search Tab -->
+        <div id="price-search-tab" class="tab-content">
+            <div class="section">
+                <h2>🔍 Ricerca Prezzi Supermercati</h2>
+                <p style="margin-bottom: 20px; color: #6c757d;">Trova i prezzi migliori per i tuoi prodotti preferiti nei supermercati della tua zona</p>
+                
+                <div class="search-container">
+                    <div class="search-input">
+                        <label for="product-search">Prodotto</label>
+                        <input type="text" id="product-search" placeholder="es. latte, pasta, pane, olio d'oliva...">
+                    </div>
+                    <div class="cap-input">
+                        <label for="cap-search">CAP</label>
+                        <input type="text" id="cap-search" placeholder="es. 20121" maxlength="5">
+                    </div>
+                    <div class="search-btn" style="display: flex; align-items: end;">
+                        <button class="btn" onclick="searchPrices()" style="width: 100%;">Cerca Prezzi</button>
+                    </div>
+                </div>
+
+                <div id="search-results" class="results-container"></div>
+            </div>
+        </div>
+
+        <!-- Smart Shopping List Tab -->
+        <div id="shopping-list-tab" class="tab-content">
+            <div class="section">
+                <h2>🛒 Lista Spesa Smart</h2>
+                <p style="margin-bottom: 20px; color: #6c757d;">Crea la tua lista spesa ottimizzata per risparmiare tempo e denaro</p>
+                
+                <div class="shopping-list-container">
+                    <div class="add-product-section">
+                        <h3>Aggiungi Prodotto</h3>
+                        <div class="form-group">
+                            <label for="list-product">Prodotto</label>
+                            <input type="text" id="list-product" placeholder="Nome del prodotto">
+                        </div>
+                        <div class="form-group">
+                            <label for="list-cap">CAP</label>
+                            <input type="text" id="list-cap" placeholder="Codice postale" maxlength="5">
+                        </div>
+                        <button class="btn" onclick="addToShoppingList()">Aggiungi alla Lista</button>
+                        <button class="btn btn-secondary" onclick="optimizeShoppingList()">Ottimizza Percorso</button>
+                    </div>
+
+                    <div class="shopping-list-section">
+                        <h3>La Tua Lista</h3>
+                        <div id="shopping-list-items">
+                            <div class="no-results">La tua lista è vuota</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="optimization-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="price_search_backend.js"></script>
+    <script>
+        // Budget Tracker Data
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let categoryChart, paymentChart;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('income-date').value = today;
+            document.getElementById('expense-date').value = today;
+            
+            updateStats();
+            updateTransactionList();
+            updateCharts();
+            updateSuggestions();
+        });
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Budget Tracker Functions
+        function addIncome() {
+            const description = document.getElementById('income-description').value;
+            const amount = parseFloat(document.getElementById('income-amount').value);
+            const date = document.getElementById('income-date').value;
+
+            if (!description || !amount || !date) {
+                alert('Per favore compila tutti i campi');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type: 'income',
+                description,
+                amount,
+                date,
+                category: 'entrata'
+            };
+
+            transactions.push(transaction);
+            saveData();
+            updateStats();
+            updateTransactionList();
+            updateCharts();
+            updateSuggestions();
+
+            // Clear form
+            document.getElementById('income-description').value = '';
+            document.getElementById('income-amount').value = '';
+        }
+
+        function addExpense() {
+            const description = document.getElementById('expense-description').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const category = document.getElementById('expense-category').value;
+            const payment = document.getElementById('expense-payment').value;
+            const date = document.getElementById('expense-date').value;
+            const recurring = document.getElementById('expense-recurring').checked;
+
+            if (!description || !amount || !date) {
+                alert('Per favore compila tutti i campi');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type: 'expense',
+                description,
+                amount,
+                category,
+                payment,
+                date,
+                recurring
+            };
+
+            transactions.push(transaction);
+            saveData();
+            updateStats();
+            updateTransactionList();
+            updateCharts();
+            updateSuggestions();
+
+            // Clear form
+            document.getElementById('expense-description').value = '';
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-recurring').checked = false;
+        }
+
+        function updateStats() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const recurringExpenses = transactions
+                .filter(t => t.type === 'expense' && t.recurring)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const balance = totalIncome - totalExpenses;
+
+            document.getElementById('total-income').textContent = `€${totalIncome.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
+            document.getElementById('balance').textContent = `€${balance.toFixed(2)}`;
+            document.getElementById('recurring-expenses').textContent = `€${recurringExpenses.toFixed(2)}`;
+
+            // Update balance color
+            const balanceElement = document.getElementById('balance');
+            balanceElement.style.color = balance >= 0 ? '#28a745' : '#dc3545';
+        }
+
+        function updateTransactionList() {
+            const listElement = document.getElementById('transaction-list');
+            
+            if (transactions.length === 0) {
+                listElement.innerHTML = '<div class="no-results">Nessuna transazione ancora registrata</div>';
+                return;
+            }
+
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            listElement.innerHTML = sortedTransactions.map(transaction => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <strong>${transaction.description}</strong>
+                        <div style="color: #6c757d; font-size: 0.9em;">
+                            ${transaction.date} • ${transaction.category || 'entrata'}
+                            ${transaction.payment ? ` • ${transaction.payment}` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="transaction-amount ${transaction.type}">
+                            ${transaction.type === 'income' ? '+' : '-'}€${transaction.amount.toFixed(2)}
+                        </span>
+                        ${transaction.recurring ? '<span class="recurring-badge">Ricorrente</span>' : ''}
+                        <button class="btn btn-danger" style="margin-left: 10px; padding: 0; font-size: 0.8em;" onclick="deleteTransaction(${transaction.id})">Elimina</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+                updateStats();
+                updateTransactionList();
+                updateCharts();
+                updateSuggestions();
+            }
+        }
+
+        function updateCharts() {
+            updateCategoryChart();
+            updatePaymentChart();
+        }
+
+        function updateCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const categoryData = {};
+
+            expenses.forEach(expense => {
+                categoryData[expense.category] = (categoryData[expense.category] || 0) + expense.amount;
+            });
+
+            const labels = Object.keys(categoryData);
+            const data = Object.values(categoryData);
+
+            if (labels.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#6c757d';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nessuna spesa registrata', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePaymentChart() {
+            const ctx = document.getElementById('paymentChart').getContext('2d');
+            
+            if (paymentChart) {
+                paymentChart.destroy();
+            }
+
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const paymentData = {};
+
+            expenses.forEach(expense => {
+                paymentData[expense.payment] = (paymentData[expense.payment] || 0) + expense.amount;
+            });
+
+            const labels = Object.keys(paymentData);
+            const data = Object.values(paymentData);
+
+            if (labels.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#6c757d';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nessuna spesa registrata', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            paymentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Importo (€)',
+                        data: data,
+                        backgroundColor: '#4facfe'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSuggestions() {
+            const suggestionsList = document.getElementById('suggestions-list');
+            const suggestions = [];
+
+            if (transactions.length === 0) {
+                suggestions.push('Inizia a registrare le tue entrate e spese per ricevere consigli personalizzati');
+            } else {
+                const expenses = transactions.filter(t => t.type === 'expense');
+                const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
+                const recurringExpenses = expenses.filter(t => t.recurring).reduce((sum, t) => sum + t.amount, 0);
+
+                // Category analysis
+                const categoryTotals = {};
+                expenses.forEach(expense => {
+                    categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
+                });
+
+                const highestCategory = Object.keys(categoryTotals).reduce((a, b) => 
+                    categoryTotals[a] > categoryTotals[b] ? a : b, Object.keys(categoryTotals)[0]);
+
+                if (highestCategory && categoryTotals[highestCategory] > totalExpenses * 0.3) {
+                    suggestions.push(`La categoria "${highestCategory}" rappresenta il ${((categoryTotals[highestCategory] / totalExpenses) * 100).toFixed(1)}% delle tue spese. Considera di ottimizzare questi costi.`);
+                }
+
+                if (recurringExpenses > totalExpenses * 0.4) {
+                    suggestions.push(`Le spese ricorrenti sono il ${((recurringExpenses / totalExpenses) * 100).toFixed(1)}% del totale. Rivedi i tuoi abbonamenti per possibili risparmi.`);
+                }
+
+                // Payment method analysis
+                const creditCardExpenses = expenses.filter(t => t.payment === 'carta-credito').reduce((sum, t) => sum + t.amount, 0);
+                if (creditCardExpenses > totalExpenses * 0.5) {
+                    suggestions.push('Usi molto la carta di credito. Considera di usare più spesso contanti o carta di debito per un migliore controllo delle spese.');
+                }
+
+                if (suggestions.length === 0) {
+                    suggestions.push('Le tue finanze sembrano ben bilanciate! Continua a monitorare regolarmente entrate e uscite.');
+                }
+            }
+
+            suggestionsList.innerHTML = suggestions.map(suggestion => `<li>${suggestion}</li>`).join('');
+        }
+
+        function saveData() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        function exportData() {
+            const data = {
+                transactions: transactions,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `budget-tracker-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const file = document.getElementById('import-file').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.transactions && Array.isArray(data.transactions)) {
+                        if (confirm('Questo sostituirà tutti i dati esistenti. Continuare?')) {
+                            transactions = data.transactions;
+                            saveData();
+                            updateStats();
+                            updateTransactionList();
+                            updateCharts();
+                            updateSuggestions();
+                            alert('Dati importati con successo!');
+                        }
+                    } else {
+                        alert('File non valido');
+                    }
+                } catch (error) {
+                    alert('Errore nella lettura del file');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Sei sicuro di voler cancellare tutti i dati? Questa azione non può essere annullata.')) {
+                transactions = [];
+                localStorage.removeItem('transactions');
+                updateStats();
+                updateTransactionList();
+                updateCharts();
+                updateSuggestions();
+                alert('Tutti i dati sono stati cancellati');
+            }
+        }
+
+        // Price Search Functions
+        function searchPrices() {
+            const product = document.getElementById('product-search').value.trim();
+            const cap = document.getElementById('cap-search').value.trim();
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!product) {
+                alert('Inserisci il nome di un prodotto');
+                return;
+            }
+
+            if (!cap || cap.length !== 5) {
+                alert('Inserisci un CAP valido (5 cifre)');
+                return;
+            }
+
+            // Show loading
+            resultsContainer.innerHTML = '<div class="loading">🔍 Ricerca in corso...</div>';
+
+            // Simulate API call delay
+            setTimeout(() => {
+                const results = PriceSearchAPI.searchProduct(product, cap);
+                displaySearchResults(results, product);
+            }, 1000);
+        }
+
+        function displaySearchResults(results, searchTerm) {
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!results || results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>Nessun risultato trovato</h3>
+                        <p>Non abbiamo trovato "${searchTerm}" nei supermercati della tua zona.</p>
+                        <p>Prova con termini più generici come "latte", "pasta", "pane".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const resultsHTML = results.map(result => {
+                const stores = result.stores.sort((a, b) => a.price - b.price);
+                const bestPrice = stores[0].price;
+
+                return `
+                    <div class="product-result">
+                        <div class="product-name">${result.productName}</div>
+                        <div class="stores-grid">
+                            ${stores.map((store, index) => {
+                                const savings = index === 0 ? 0 : ((store.price - bestPrice) / bestPrice * 100);
+                                return `
+                                    <div class="store-card ${index === 0 ? 'best-price' : ''}">
+                                        <div class="store-header">
+                                            <span class="store-name">${store.name}</span>
+                                            <span class="store-price">€${store.price.toFixed(2)}</span>
+                                        </div>
+                                        <div class="store-info">📍 ${store.address}</div>
+                                        <div class="store-info">📞 ${store.phone}</div>
+                                        <div class="store-info">🕒 ${store.hours}</div>
+                                        <div style="margin-top: 10px;">
+                                            ${index === 0 ? 
+                                                '<span class="savings-badge">Miglior Prezzo</span>' : 
+                                                `<span style="color: #dc3545; font-size: 0.9em;">+€${(store.price - bestPrice).toFixed(2)} (+${savings.toFixed(1)}%)</span>`
+                                            }
+                                            <button class="btn" style="margin-left: 10px; padding: 0; font-size: 0.8em;" onclick="addToShoppingListFromSearch('${result.productName}', '${store.name}', ${store.price})">
+                                                Aggiungi alla Lista
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            resultsContainer.innerHTML = resultsHTML;
+        }
+
+        // Shopping List Functions
+        let shoppingList = JSON.parse(localStorage.getItem('shoppingList')) || [];
+
+        function addToShoppingList() {
+            const product = document.getElementById('list-product').value.trim();
+            const cap = document.getElementById('list-cap').value.trim();
+
+            if (!product) {
+                alert('Inserisci il nome di un prodotto');
+                return;
+            }
+
+            if (!cap || cap.length !== 5) {
+                alert('Inserisci un CAP valido (5 cifre)');
+                return;
+            }
+
+            // Search for best price
+            const results = PriceSearchAPI.searchProduct(product, cap);
+            if (results && results.length > 0) {
+                const bestStore = results[0].stores.sort((a, b) => a.price - b.price)[0];
+                addToShoppingListFromSearch(results[0].productName, bestStore.name, bestStore.price);
+            } else {
+                alert('Prodotto non trovato');
+            }
+
+            // Clear form
+            document.getElementById('list-product').value = '';
+        }
+
+        function addToShoppingListFromSearch(productName, storeName, price) {
+            const item = {
+                id: Date.now(),
+                product: productName,
+                store: storeName,
+                price: price
+            };
+
+            shoppingList.push(item);
+            localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+            updateShoppingListDisplay();
+        }
+
+        function removeFromShoppingList(id) {
+            shoppingList = shoppingList.filter(item => item.id !== id);
+            localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+            updateShoppingListDisplay();
+        }
+
+        function updateShoppingListDisplay() {
+            const container = document.getElementById('shopping-list-items');
+
+            if (shoppingList.length === 0) {
+                container.innerHTML = '<div class="no-results">La tua lista è vuota</div>';
+                return;
+            }
+
+            const itemsHTML = shoppingList.map(item => `
+                <div class="product-item">
+                    <div class="product-details">
+                        <div class="product-title">${item.product}</div>
+                        <div class="product-store">${item.store}</div>
+                    </div>
+                    <div>
+                        <span class="product-price">€${item.price.toFixed(2)}</span>
+                        <button class="remove-btn" onclick="removeFromShoppingList(${item.id})">Rimuovi</button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = itemsHTML;
+        }
+
+        function optimizeShoppingList() {
+            if (shoppingList.length === 0) {
+                alert('La lista è vuota');
+                return;
+            }
+
+            const optimization = PriceSearchAPI.optimizeShoppingRoute(shoppingList);
+            displayOptimizationResults(optimization);
+        }
+
+        function displayOptimizationResults(optimization) {
+            const container = document.getElementById('optimization-results');
+
+            if (!optimization) {
+                container.innerHTML = '<div class="error-message">Errore nell\'ottimizzazione del percorso</div>';
+                return;
+            }
+
+            const routeHTML = optimization.route.map((stop, index) => `
+                <div class="route-info">
+                    <h4>Tappa ${index + 1}: ${stop.store}</h4>
+                    <p><strong>Prodotti:</strong> ${stop.products.join(', ')}</p>
+                    <p><strong>Costo totale:</strong> €${stop.totalCost.toFixed(2)}</p>
+                    <p><strong>Distanza:</strong> ${stop.distance}</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="optimization-results">
+                    <h3>🎯 Percorso Ottimizzato</h3>
+                    ${routeHTML}
+                    <div class="total-savings">
+                        <div>💰 Costo Totale: €${optimization.totalCost.toFixed(2)}</div>
+                        <div>🚗 Distanza Totale: ${optimization.totalDistance}</div>
+                        <div>⏱️ Tempo Stimato: ${optimization.estimatedTime}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize shopping list display
+        document.addEventListener('DOMContentLoaded', function() {
+            updateShoppingListDisplay();
+        });
+    </script>
+</body>
+</html>
